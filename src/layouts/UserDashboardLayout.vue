@@ -1,6 +1,11 @@
 <script setup>
 import { RouterLink, useRoute, RouterView } from 'vue-router';
+
+
 const route = useRoute();
+
+const userDetailsStore = localStorage.getItem("userDetails")
+const userDetails = JSON.parse(userDetailsStore);
 </script>
 
 <template>
@@ -8,16 +13,16 @@ const route = useRoute();
     <div class="sidebar">
       <div class="sidenav">
         <div class="profile">
-          <img class="profile-img" src="@/assets/icons/leftbanner.png" alt="profile picture" />
+          <img class="profile-img" src="@/assets/icons/Ellipse.png" alt="profile picture" />
           <div class="details">
-            <h1 class="profile-name">Andy Cole</h1>
-            <p mailto:class="profile-mail">cole@gmal.com</p>
+            <h1 class="profile-name">{{ userDetails.firstName }} {{userDetails.lastName}}</h1>
+            <p mailto:class="profile-mail">{{ userDetails.email }}</p>
           </div>
         </div>
 
         <div class="sidenav-links">
           <RouterLink class="links" :to="{ name: 'dashboard' }" active-class="active">
-            <div class="icons"><img src="@/assets/icons/dashboardicon.svg" alt="" /></div>
+            <div class="icons"><img src="@/assets/icons/dashboard.svg" alt="" /></div>
             <p class="link-text">Dashboard</p>
           </RouterLink>
 
@@ -26,15 +31,18 @@ const route = useRoute();
             <p class="link-text">Assessment</p>
           </RouterLink>
 
-          <RouterLink class="links logout" :to="{ name: 'users' }">
-            <div class="icons"><img src="@/assets/icons/logouticon.svg" alt="" /></div>
+          <RouterLink class="links logout" :to="{ name: 'home' }">
+            <div class="icons"><img src="@/assets/icons/logout.svg" alt="" /></div>
             <p class="link-text">Log Out</p>
           </RouterLink>
         </div>
       </div>
     </div>
     <div class="rightContent">
-      <RouterView />
+      <div class="rightSide">
+        <RouterView />
+      </div>
+      
     </div>
   </div>
 </template>
@@ -90,7 +98,7 @@ const route = useRoute();
 
 .profile-mail {
     color: #FFF;
-    font-family: Lato;
+    font-family: 'Lato';
     font-size: 16px;
     font-style: italic;
     font-weight: 400;
@@ -132,7 +140,13 @@ const route = useRoute();
     font-style: normal;
     font-weight: 700;
 }
-.rightContent{
-  padding: 102px 47px;
+.rightContent {
+  height: 100vh;
+  width: calc(100vw - 292px);
+} 
+.rightSide{
+  height: 100vh;
+  overflow-y: scroll;
+  padding: 60px 47px;
 }
 </style>

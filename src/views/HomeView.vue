@@ -169,6 +169,6 @@ import HeroCardComponent from "../components/HeroCardComponent.vue";
   background: #7557D3;
   text-align: center;
   padding-top: 55px;
-  padding-bottom: 80px;
+  padding-bottom: 55px;
 }
 </style>

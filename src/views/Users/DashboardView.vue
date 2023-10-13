@@ -160,6 +160,8 @@ hr{
 button{
     background-color: #B1B1B1;
     padding: 10px 40px;
+    border: none;
+    border-radius: 4px;
 }
 p{
     color: #4F4F4F;

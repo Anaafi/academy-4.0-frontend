@@ -10,8 +10,13 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "axios": "^1.5.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "nodemon": "^3.0.1",
     "pinia": "^2.1.6",
     "vue": "^3.3.4",
+    "vue-multiselect": "^2.1.7",
     "vue-router": "^4.2.4"
   },
   "devDependencies": {
