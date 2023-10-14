@@ -51,6 +51,11 @@ const changeTab = (tab) => {
     flex-direction: column;
     gap: 50px;
 }
+
+
+.about-content{
+    margin: 58px 0px 16px 48px;
+}
     .tab-btn{
         color: #333758;
         font-family: 'Lato';

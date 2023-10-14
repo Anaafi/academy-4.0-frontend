@@ -1,13 +1,8 @@
 <script setup>
-import { ref } from "vue";
-// import { RouterLink, useRouter } from "vue-router";
+import { ref, computed } from "vue";
 import axios from "axios";
-// Define the initial question template with empty values.
 
-const derror = ref(""); // Define derror and initialize it with an empty string.
-const fileError = ref(""); // Define fileError and initialize it with an empty string.
-
-
+const derror = ref("");
 
 const questionTemplate = {
   options: {
@@ -22,40 +17,33 @@ const questionTemplate = {
   file: null,
 };
 
-// Use ref to create reactive variables.
-const index = ref(0);
-const questions = ref([]);
-const user = ref({ ...questionTemplate });
-const questionError = ref("");
+const questions = ref([]); // Store all questions
+const currentQuestion = ref({ ...questionTemplate }); // Current question being edited
+const currentIndex = ref(0);
 
-// Function to move to the next question.
-const next = () => {
-  // Validate that the question is not empty.
-  if (user.value.question.trim() !== "") {
-    questions.value[index.value] = { ...user.value };
-    index.value++;
+const user = ref({ ...questionTemplate }); // Initialize 'user' object
 
-    if (index.value < 4) {
-      // Make sure you have 4 questions.
-      user.value = { ...questions.value[index.value] };
-    } else {
-      user.value = { ...questionTemplate };
-    }
+const addQuestion = () => {
+  if (user.value && user.value.question && user.value.question.trim() !== "") {
+    questions.value.push({ ...user.value });
+    currentIndex.value = questions.value.length;
+    user.value = { ...questionTemplate };
   }
 };
 
-// Function to move to the previous question.
+const next = () => {
+  addQuestion(); // Add the current question before moving to the next
+};
+
 const previous = () => {
-  if (index.value > 0) {
-    if (user.value.question.trim() !== "") {
-      questions.value[index.value] = { ...user.value };
-    }
-    index.value--;
-    user.value = { ...questions.value[index.value] };
+  if (currentIndex.value > 0) {
+    currentIndex.value--;
+    user.value = { ...questions.value[currentIndex.value] };
   }
 };
 
 const finish = () => {
+  addQuestion(); // Add the current question before finishing
   const token = localStorage.getItem("admin-token");
   axios
     .post("http://localhost:6001/api/v1/assessment", questions.value, {
@@ -69,38 +57,39 @@ const finish = () => {
     .catch((error) => {
       console.log(error);
     });
-  user.value = { ...questionTemplate };
-  index.value = 0;
-  questions.value = [];
 };
 
-const correctAns = (value) => {
-  user.value.correctAnswer = value;
+// Add a computed property to display errors
+const questionError = computed(() => {
+  if (!user.value.question || user.value.question.trim() === "") {
+    return "Question is required";
+  }
+  return "";
+});
+
+const correctAns = (answer) => {
+  user.value.correctAnswer = answer;
 };
+
+// Error handling for file
+const fileError = ref("");
+
 </script>
 
 <template>
   <div class="main">
     <h1 class="main-text">Compose Assessment</h1>
     <form>
-      <label class="box-labels">{{ index + 1 }}/4</label>
-
+      <label class="box-labels">{{ currentIndex + 1 }}/4</label>
       <input class="fileupload" type="file" id="file" />
-      <!-- Display file upload errors -->
       <p>{{ fileError }}</p>
-
       <label class="file-label" for="file"> + Choose file</label>
-
       <div class="box3">
         <label class="box-labels">Questions</label>
-        <!-- Use v-model.trim to remove leading/trailing whitespace -->
         <textarea name="" class="text-area" v-model.trim="user.question"></textarea>
-        <!-- Display question errors -->
         <p>{{ questionError }}</p>
       </div>
-
       <div class="main-boxes">
-        <!-- Update the class binding -->
         <div>
           <label class="box-labels option-labels" @click="correctAns('a')">Option A</label>
           <br /><input
@@ -117,7 +106,6 @@ const correctAns = (value) => {
             v-model="user.options.b"
           />
         </div>
-
         <div>
           <label class="box-labels option-labels" @click="correctAns('c')">Option C</label>
           <br /><input
@@ -135,12 +123,9 @@ const correctAns = (value) => {
           />
         </div>
       </div>
-
       <p>{{ derror }}</p>
-      <!-- This variable is not defined, make sure it's defined if needed. -->
-
       <div class="btn-container">
-        <button class="btn-next" :disabled="index === 0" @click="previous">Previous</button>
+        <button class="btn-next" :disabled="currentIndex === 0" @click="previous">Previous</button>
         <button class="btn-next" @click="next">Next</button>
       </div>
       <div class="btn-finish">
@@ -149,6 +134,7 @@ const correctAns = (value) => {
     </form>
   </div>
 </template>
+
 
 <style scoped>
 p {
