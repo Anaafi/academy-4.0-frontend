@@ -1,23 +1,96 @@
 <script setup>
 import ModalComponent from '../../components/ModalComponent.vue';
-import { ref } from 'vue';
+import {ref, computed, onMounted} from 'vue';
+import axios from "axios";
+const personData = ref(null);
 
-const mainModalVisibility = ref(false);
 
+const openmodal = ref(false);
 
-const openMainModal = () => {
-  mainModalVisibility.value = true;
+const openMainModal = (person) => {
+  // Pass the person data to the modal component
+  personData.value = person;
+  openmodal.value = true;
 };
+
+// const openDenyButton = () => {
+//     openmodal.value = false;
+//     declineVisibility.value = true;
+// };
+
+// const openApproveButton = () => {
+//     openmodal.value = false;
+//     approveVisibility.value = true;
+// };
+
+const closeModal = () => {
+    openmodal.value = false;
+};
+
+
+const sortedPeople = computed(() => {
+    return [...people.value].sort((a, b) => a.age - b.age || a.cgpa - b.cgpa);
+});
+
+const ageAscending = () => {
+    people.value.sort((a, b) => b.age - a.age);
+};
+const ageDescending = () => {
+    people.value.sort((a, b) => b.age - a.age);
+};
+
+const cgpaAscending = () => {
+    people.value.sort((a, b) => b.cgpa - a.cgpa);
+};
+const cgpaDescending = () => {
+    people.value.sort((a, b) => b.cgpa - a.cgpa);
+};
+
+const people = ref([])
+
+
+
+function setPeople(data) {
+  people.value = data
+}
+
+async function AllApplications() {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get("http://localhost:6001/api/v1/application", {
+      headers: { authorization: token },
+    });
+    setPeople(response.data.data)
+    console.log(response)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+/*
+* computed
+ */
+
+const fullName = computed(() => {
+  return (first_Name, last_Name) => {
+    return `${first_Name} ${last_Name}`
+  }
+});
+
+onMounted(async () => {
+  await AllApplications()
+})
+
 
 </script>
 
 <template>
    <section>
-    <ModalComponent  v-show="mainModalVisibility" class="main-modal" />
+    <ModalComponent  @close="closeModal" v-show="openmodal" class="main-modal" />
   
     <div class="app-main">
         <div class="title">
-            <h1>Entries - Batch 2</h1>
+            <h1>Entries - Batch 1</h1>
             <img src="@/assets/icons/hello.svg">
         </div>
         <p>Comprises of all that applied for batch 2</p>
@@ -32,8 +105,8 @@ const openMainModal = () => {
                 <div class="sort">
                     <p>DOB - Age</p>
                     <figure>
-                        <img src="@/assets/icons/sortup.svg">
-                        <img src="@/assets/icons/sortdown.svg">
+                      <button class="btn" @click="ageAscending"><img src="@/assets/icons/sortup.svg" srcset=""></button>
+                      <button class="btn" @click="ageDescending"><img src="@/assets/icons/sortdown.svg" srcset=""></button>
                     </figure>
                 </div>
             </th>
@@ -43,23 +116,24 @@ const openMainModal = () => {
                 <div class="sort">
                     <p>CGPA</p>
                     <figure>
-                        <img src="@/assets/icons/sortup.svg">
-                        <img src="@/assets/icons/sortdown.svg">
+                      <button class="btn" @click="cgpaAscending"><img src="@/assets/icons/sortup.svg" srcset=""></button>
+                      <button class="btn" @click="cgpaDescending"><img src="@/assets/icons/sortdown.svg" srcset=""></button>
                     </figure>
                 </div>
             </th>
         </tr>
       </thead>
       <tbody>
-        <tr @click="openMainModal" class="tail">
-            <td>Jack Ice</td>
-            <td>ify@enyata.com</td>
-            <td>12/09/19 - 22</td>
-            <td>3 Sabo Ave, Yaba, Lagos</td>
-            <td>University of Nigeria</td>
-            <td>5.0</td>
-        </tr>
-      </tbody>   
+        <tr class="t-row" v-for="person in sortedPeople" :key="person.id" @click="() => openMainModal(person)">
+            <td>{{ fullName(person.first_name, person.last_name) }}</td>
+              <td>{{ person.email }}</td>
+              <td>{{ person.date_of_birth }}</td>
+              <td>{{ person.address }}</td>
+              <td>{{ person.university }}</td>
+              <td>{{ person.cgpa }}</td>
+          </tr>
+            </tbody>
+
     </table>
    </section> 
 </template>
